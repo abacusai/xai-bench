@@ -10,7 +10,7 @@
 Todo
 
 
-## Usage
+## Usage (WIP)
 
 The API can be accessed using `python main_driver.py`. 
 
@@ -50,7 +50,7 @@ optional arguments:
 ```
 
 
-### Sample Usage
+### Sample Usage (WIP)
 
 For explaining using an experiment config on the regression datasets (recommended to use experiment config), use `--no-logs` when debugging
 ```
@@ -62,6 +62,6 @@ For running several experiments at once use a script as shown in,
 ```
 
 
-### Plotting
+### Plotting (WIP)
 
 All plotting scripts and plots are inside the `plotting` directory, Simply run the scripts `python <script_name>` to generate the plots.
