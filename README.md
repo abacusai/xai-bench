@@ -1,12 +1,14 @@
-# XAI-Bench
+<p align="center"><img src="img/banner.svg" width=700 /></p>
 
 `XAI-Bench` is a library for benchmarking feature attribution techniques using synthetic data. Unlike real-world datasets, synthetic datasets allow the efficient computation of conditional expected values that are needed to evaluate many explainability metrics such as ground-truth Shapley values, faithfulness, and monotonicity. This repository can be used to benchmark six different feature attribution techniques across ten different evaluation metrics.
 
-<p align="center"><img src="img/overview_figure.png" width=700 /></p>
+<p align="center"><img src="img/overview_figure.svg" width=700 /></p>
+
 
 ## Installation
 
 Todo
+
 
 ## Usage
 
@@ -47,7 +49,9 @@ optional arguments:
                         Path to save results in csv files.
 ```
 
-### Sample Usage -
+
+### Sample Usage
+
 For explaining using an experiment config on the regression datasets (recommended to use experiment config), use `--no-logs` when debugging
 ```
 python main_driver.py --mode regression --seed 7 --experiment --experiment-json configs/experiment_config.json --no-logs
@@ -57,6 +61,7 @@ For running several experiments at once use a script as shown in,
 ./script.sh
 ```
 
-### Plotting -
+
+### Plotting
 
 All plotting scripts and plots are inside the `plotting` directory, Simply run the scripts `python <script_name>` to generate the plots.
