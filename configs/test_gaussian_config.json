@@ -1,0 +1,36 @@
+// Each experiment has a dataset, a model and can have multiple explainers and metrics
+// we now support comments @Yang
+{
+    "dataset": {
+        "name": "gaussianLinear",  // gaussianNonLinearAdditive, gaussianLinear, gaussianPiecewiseConstant
+        "data_kwargs": {
+            "mu": "np.zeros(4)",
+            // "sigma": "np.identity(4)",
+            "dim": 4,
+            // "rho": 0.9,
+            "weight": "np.array([4, 3, 2, 1])",// 6, 5, 4, 3, 2, 1, 0])",
+            "noise": 0.01,
+            "num_train_samples": 100,
+            "num_val_samples": 10
+        }
+    }, 
+    "models": [{
+        "name": "lr",
+        "model_kwargs": {}
+    },
+    // {
+    //     "name": "dataset",
+    //     "model_kwargs": {}
+    // },
+    {
+        "name": "dtree",
+        "model_kwargs": {}
+    },
+    {
+        "name": "mlp",
+        "model_kwargs": {}
+    }
+    ],
+    "explainers": ["random", "shap", "shapr", "brutekernelshap", "maple", "lime", "l2x"],
+    "metrics": ["roar_faithfulness", "faithfulness", "monotonicity", "shapley"]
+}
