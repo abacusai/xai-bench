@@ -2,12 +2,12 @@
 // we now support comments @Yang
 {
     "dataset": {
-        // "name": "gaussianNonLinearAdditive",  // gaussianNonLinearAdditive, gaussianLinear, gaussianPiecewiseConstant
+        "name": "gaussianPiecewiseConstant",  // gaussianNonLinearAdditive, gaussianLinear, gaussianPiecewiseConstant
         "data_kwargs": {
             "mu": "np.zeros(5)",
             // "sigma": "np.identity(4)",
             "dim": 5,
-            // "rho": 0.9,
+            "rho": 0.5,
             "weight": "np.array([4, 3, 2, 1, 0])",// 6, 5, 4, 3, 2, 1, 0])",
             "noise": 0.01,
             "num_train_samples": 1000,

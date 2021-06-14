@@ -56,8 +56,8 @@ plt.show()
 
 #plt.savefig('heat.pdf',dpi=fig.dpi)
 
-#plt.figure(figsize = (10,10))
-#fig, axs = plt.subplots(2,X.shape[1])
+plt.figure(figsize = (10,10))
+fig, axs = plt.subplots(2,X.shape[1])
 
 n_real = X.shape[0]
 n_synth = np.array(synthetic_samples).shape[0]

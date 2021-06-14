@@ -7,19 +7,36 @@
 
 ## Installation
 
-Todo
+To use our package, make sure you install all the dependencies in `requirements.txt` using 
+```
+pip install -r requirements.txt
+```
 
+## Sample Usage (WIP)
 
-## Usage (WIP)
+We use an `Experiment` to benchmark various datasets, models, explainers, metrics. This is the recommended way to access our library.
 
-The API can be accessed using `python main_driver.py`. 
+To run a sample benchmarking experiment on our `GaussianPiecewiseConstant` dataset using the sample config `configs/experiment_config.json`, run
+```
+python main_driver.py --mode regression --seed 7 --experiment --experiment-json configs/experiment_config.json --no-logs
+```
+For running several experiments across multiple datasets, use a script as shown in,
+```
+./script.sh
+```
+Each `Experiment` object is saved after execution for checkpointing. This way, additional experiments can be run without having to rerun previous computation.
+
+The API uses `main_driver.py` which takes in the arguments - 
 
 ```
-> python main_driver.py --help
-usage: Driver for the explainability project [-h] [--mode {classification,regression}] --dataset DATASET --model MODEL --explainer EXPLAINER [--metric METRIC]
+> python main_driver.py -h
+
+usage: Driver for the explainability project [-h] [--mode {classification,regression}] --dataset DATASET --model MODEL --explainer
+                                             EXPLAINER [--metric METRIC]
                                              [--data-kwargs DATA_KWARGS | --data-kwargs-json DATA_KWARGS_JSON]
-                                             [--model-kwargs MODEL_KWARGS | --model-kwargs-json MODEL_KWARGS_JSON] [--seed SEED] [--experiment] [--rho RHO]
-                                             [--rhos RHOS [RHOS ...]] [--experiment-json EXPERIMENT_JSON] [--no-logs] [--results-dir RESULTS_DIR]
+                                             [--model-kwargs MODEL_KWARGS | --model-kwargs-json MODEL_KWARGS_JSON] [--seed SEED]
+                                             [--experiment] [--rho RHO] [--rhos RHOS [RHOS ...]] [--experiment-json EXPERIMENT_JSON]
+                                             [--no-logs] [--results-dir RESULTS_DIR]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -49,19 +66,6 @@ optional arguments:
                         Path to save results in csv files.
 ```
 
+## Plotting (WIP)
 
-### Sample Usage (WIP)
-
-For explaining using an experiment config on the regression datasets (recommended to use experiment config), use `--no-logs` when debugging
-```
-python main_driver.py --mode regression --seed 7 --experiment --experiment-json configs/experiment_config.json --no-logs
-```
-For running several experiments at once use a script as shown in,
-```
-./script.sh
-```
-
-
-### Plotting (WIP)
-
-All plotting scripts and plots are inside the `plotting` directory, Simply run the scripts `python <script_name>` to generate the plots.
+Some scripts for visulizing the results are available in `plotting/`. You can use them to generate plots by the `results_dir` to your `results_dir`.
