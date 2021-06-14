@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+#*.py[cod]
 *$py.class
 
 # C extensions
@@ -128,5 +128,16 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Mac
-*.DS_Store
+# MacOS 
+.DS_Store
+
+# excess data files
+data/*
+trash/
+results/*
+
+# VSCode
+.vscode/
+
+# Vim
+*.sw*
