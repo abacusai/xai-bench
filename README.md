@@ -69,3 +69,15 @@ optional arguments:
 ## Plotting (WIP)
 
 Some scripts for visulizing the results are available in `plotting/`. You can use them to generate plots by the `results_dir` to your `results_dir`.
+
+## Citation 
+Please cite our work if you use code from this repo:
+```bibtex
+@misc{xai-bench-2021, 
+  title={Synthetic Benchmarks for Scientific Research in Explainable Machine Learning}, 
+  author={Liu, Yang and Khandagale, Sujay and White, Colin and Neiswanger, Willie}, 
+  year={2021}, 
+  publisher={GitHub}, 
+  howpublished={\url{https://github.com/abacusai/xai-bench}}
+ }
+ ```
