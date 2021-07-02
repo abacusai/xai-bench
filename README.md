@@ -12,7 +12,7 @@ To use our package, make sure you install all the dependencies in `requirements.
 pip install -r requirements.txt
 ```
 
-## Sample Usage (WIP)
+## Sample Usage
 
 We use an `Experiment` to benchmark various datasets, models, explainers, metrics. This is the recommended way to access our library.
 
@@ -25,6 +25,21 @@ For running several experiments across multiple datasets, use a script as shown 
 ./script.sh
 ```
 Each `Experiment` object is saved after execution for checkpointing. This way, additional experiments can be run without having to rerun previous computation.
+
+## Citation 
+Please cite our work if you use code from this repo:
+```bibtex
+@misc{xai-bench-2021, 
+  title={Synthetic Benchmarks for Scientific Research in Explainable Machine Learning}, 
+  author={Liu, Yang and Khandagale, Sujay and White, Colin and Neiswanger, Willie}, 
+  year={2021}, 
+  publisher={GitHub}, 
+  howpublished={\url{https://github.com/abacusai/xai-bench}}
+ }
+ ```
+
+---
+## More details
 
 The API uses `main_driver.py` which takes in the arguments - 
 
@@ -65,19 +80,3 @@ optional arguments:
   --results-dir RESULTS_DIR
                         Path to save results in csv files.
 ```
-
-## Plotting (WIP)
-
-Some scripts for visulizing the results are available in `plotting/`. You can use them to generate plots by the `results_dir` to your `results_dir`.
-
-## Citation 
-Please cite our work if you use code from this repo:
-```bibtex
-@misc{xai-bench-2021, 
-  title={Synthetic Benchmarks for Scientific Research in Explainable Machine Learning}, 
-  author={Liu, Yang and Khandagale, Sujay and White, Colin and Neiswanger, Willie}, 
-  year={2021}, 
-  publisher={GitHub}, 
-  howpublished={\url{https://github.com/abacusai/xai-bench}}
- }
- ```
