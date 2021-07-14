@@ -61,11 +61,9 @@ class MultinomialLinearRegression(CustomDataset):
     def generatetarget(self, X):
         if isinstance(X, pd.DataFrame):
             X = X.values
-        Y = np.matmul(X, self.weight) + np.random.normal(
-            scale=self.noise, size=(X.shape[0], 1)
-        )
+        Y = np.matmul(X, self.weight) + np.random.normal(scale=self.noise, size=(X.shape[0],) )
         Y -= np.mean(Y)
-        Y /= np.std(Y)
+        Y /= np.std(Y) if np.std(Y) != 0 else 1
         return Y
 
     def generate(self, mask=None, x=None, n_sample=1):
