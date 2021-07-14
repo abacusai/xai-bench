@@ -18,7 +18,7 @@ We use an `Experiment` to benchmark various datasets, models, explainers, metric
 
 To run a sample benchmarking experiment on our `GaussianPiecewiseConstant` dataset using the sample config `configs/experiment_config.json`, run
 ```
-python main_driver.py --mode regression --seed 7 --experiment --experiment-json configs/experiment_config.json --no-logs
+python main_driver.py --mode regression --seed 7 --experiment --experiment-json configs/experiment_config.jsonc --no-logs
 ```
 For running several experiments across multiple datasets, use a script as shown in,
 ```

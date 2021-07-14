@@ -10,8 +10,8 @@
             // "rho": 0.9,
             "weight": "np.array([4, 3, 2, 1, 0])",// 6, 5, 4, 3, 2, 1, 0])",
             "noise": 0.01,
-            "num_train_samples": 1000,
-            "num_val_samples": 100
+            "num_train_samples": 10,
+            "num_val_samples": 10
         }
     }, 
     "models": [
