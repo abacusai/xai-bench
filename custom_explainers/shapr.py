@@ -41,7 +41,7 @@ def get_weighted_mean(w_s, s, f, x, reference):
     return wp_sum / w_sum
 
 
-def kernel_shapr(f, x, reference, M):
+def kernel_shapr(f, x, reference, M, sigma):
     X = np.zeros((2 ** M, M + 1))
     X[:, -1] = 1
     weights = np.zeros(2 ** M)
@@ -51,7 +51,7 @@ def kernel_shapr(f, x, reference, M):
         s = list(s)
         w_s = np.ones(len(reference))
         if len(s) > 1:
-            w_s = get_weights(reference, s, x)
+            w_s = get_weights(reference, s, x, sigma)
         X[i, s] = 1
         weights[i] = shapley_kernel(M, len(s))
         y[i] = get_weighted_mean(w_s, s, f, x, reference)
@@ -61,15 +61,16 @@ def kernel_shapr(f, x, reference, M):
 
 
 class ShapR:
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X.values
         self.M = X.shape[1]
+        self.sigma = 0.4 if 'sigma' not in kwargs else kwargs['sigma']
 
     def explain(self, x):
         phi = np.zeros((x.shape[0], self.M + 1))
         for idx, x in tqdm(enumerate(x.values)):
-            phi[idx] = kernel_shapr(self.f, x, self.X, self.M)
+            phi[idx] = kernel_shapr(self.f, x, self.X, self.M, self.sigma)
         self.expected_values = phi[:, -1]
         shap_values = phi[:, :-1]
         return shap_values

@@ -22,7 +22,7 @@ class SHAP_Random:
 
 
 class Random:
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
         self.explainer = SHAP_Random().attributions

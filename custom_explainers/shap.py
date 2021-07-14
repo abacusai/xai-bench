@@ -15,10 +15,10 @@ class Shap:
 
 
 class KernelShap:
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
-        self.explainer = shap.KernelExplainer(self.f, self.X)
+        self.explainer = shap.KernelExplainer(self.f, self.X, **kwargs)
 
     def explain(self, x):
         shap_values = self.explainer(x)

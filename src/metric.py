@@ -7,7 +7,8 @@ valid_metrics = {
     "monotonicity": custom_metrics.Monotonicity,
     "roar": custom_metrics.Roar,
     "shapley": custom_metrics.Shapley,
-    "shapley_corr": custom_metrics.ShapleyCorr
+    "shapley_corr": custom_metrics.ShapleyCorr,
+    "infidelity": custom_metrics.Infidelity
 }
 
 

@@ -16,16 +16,21 @@ import copy
 from .roar import split_data
 
 class ROARMonotonicity:
-    def __init__(self, model, trained_model, dataset=None, version='inc'):
+    def __init__(self, model, trained_model, dataset=None, version='inc', conditional="observational", **kwargs):
         self.model = model
         self.trained_model = trained_model
         self.dataset = dataset
         self.version = version
+        self.conditional = conditional
+        assert conditional in ['observational', 'interventional']
 
     def evaluate(self, X, y, feature_weights, ground_truth_weights, avg=True, X_train=None, y_train=None, n_sample=100, X_train_feature_weights=None):
         X = X.values
         num_datapoints, num_features = X.shape[0]+X_train.shape[0], X.shape[1]
         absolute_weights = abs(np.concatenate([X_train_feature_weights, feature_weights], axis = 0))
+
+        # compute the base values of each feature
+        avg_feature_values = X.mean(axis=0)
 
         num_tests = len(X)
         y_preds = np.squeeze(self.trained_model.predict(X))
@@ -51,7 +56,10 @@ class ROARMonotonicity:
                 if self.version == 'dec':
                     sorted_weight_indices = sorted_weight_indices[::-1]
                 mask[sorted_weight_indices[:j+1]] = 1
-                X_new[i] = self.dataset.generator.computeexpectation(mask=mask, x=X_new[i])
+                if self.conditional == "observational":
+                    X_new[i] = self.dataset.generator.computeexpectation(mask=mask, x=X_new[i])
+                elif self.conditional == "interventional":
+                    X_new[i][~mask.astype(bool)] = avg_feature_values[~mask.astype(bool)]
             
             X_train_new, y_train_new, X_test, y_test = X_new[:len(X_train)], y_new[:len(X_train)], X_new[len(X_train):], y_new[len(X_train):]
             model_new = copy.deepcopy(self.model)
