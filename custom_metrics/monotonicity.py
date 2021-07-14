@@ -15,11 +15,13 @@ import numpy as np
 
 
 class Monotonicity:
-    def __init__(self, model, trained_model, dataset=None, version='inc'):
+    def __init__(self, model, trained_model, dataset=None, version='inc', conditional="observational", **kwargs):
         self.model = model
         self.trained_model = trained_model
         self.dataset = dataset
         self.version = version
+        self.conditional = conditional
+        assert conditional in ['observational', 'interventional']
 
     def evaluate(self, X, y, feature_weights, ground_truth_weights, avg=True, X_train=None, y_train=None, n_sample=100, X_train_feature_weights=None):
         X = X.values
@@ -27,7 +29,7 @@ class Monotonicity:
         absolute_weights = abs(feature_weights)
 
         # compute the base values of each feature
-        # avg_feature_values = X.mean(axis=0)
+        avg_feature_values = X.mean(axis=0)
 
         monotonicities = []
 
@@ -42,8 +44,13 @@ class Monotonicity:
 
             for j in sorted_weight_indices:
                 mask[j] = 1
-                x_sampled, _ = self.dataset.generate(mask=mask, x=X[i], n_sample=n_sample)
-                y_preds_new[j+1] = np.mean(np.squeeze(self.trained_model.predict(x_sampled)))
+                if self.conditional == "observational":
+                    x_sampled, _ = self.dataset.generate(mask=mask, x=X[i], n_sample=n_sample)
+                    y_preds_new[j+1] = np.mean(np.squeeze(self.trained_model.predict(x_sampled)))
+                elif self.conditional == "interventional":
+                    x_cond = avg_feature_values
+                    x_cond[mask.astype(bool)] = X[i][mask.astype(bool)]
+                    y_preds_new[j+1] = self.trained_model.predict([x_cond])[0]
 
             deltas = np.abs(np.diff(y_preds_new))
             if self.version == 'dec':

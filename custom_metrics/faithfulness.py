@@ -11,17 +11,22 @@ import numpy as np
 
 
 class Faithfulness:
-    def __init__(self, model, trained_model, dataset, version="dec"):
+    def __init__(self, model, trained_model, dataset, version="dec", conditional="observational", **kwargs):
         self.model = model
         self.trained_model = trained_model
         self.dataset = dataset
         self.version = version
         assert version in ['inc', 'dec']
+        self.conditional = conditional
+        assert conditional in ['observational', 'interventional']
 
     def evaluate(self, X, y, feature_weights, ground_truth_weights, X_train=None, y_train=None, n_sample=100, X_train_feature_weights=None):
         X = X.values
         num_datapoints, num_features = X.shape
         absolute_weights = abs(feature_weights)
+
+        # compute the base values of each feature
+        avg_feature_values = X.mean(axis=0)
 
         faithfulnesses = []
         for i in range(num_datapoints):
@@ -41,10 +46,15 @@ class Faithfulness:
                 mask[j] = 0
                 if self.version == 'inc':
                     mask = 1 - mask
-                # sample n_sample datapoints with feature j ablated
-                x_sampled, _ = self.dataset.generate(mask=mask, x=X[i], n_sample=n_sample)
-                # compute mean over n
-                y_preds_new[j] = np.mean(np.squeeze(self.trained_model.predict(x_sampled)))
+                if self.conditional == "observational":
+                    # sample n_sample datapoints with feature j ablated
+                    x_sampled, _ = self.dataset.generate(mask=mask, x=X[i], n_sample=n_sample)
+                    # compute mean over n
+                    y_preds_new[j] = np.mean(np.squeeze(self.trained_model.predict(x_sampled)))
+                elif self.conditional == "interventional":
+                    x_cond = avg_feature_values
+                    x_cond[mask.astype(bool)] = X[i][mask.astype(bool)]
+                    y_preds_new[j] = self.trained_model.predict([x_cond])[0]
             
             deltas = [abs(y_pred - y_preds_new[j]) for j in range(num_features)]
             faithfulness = np.corrcoef(absolute_weights[i], deltas)[0, 1]

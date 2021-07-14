@@ -266,10 +266,12 @@ class L2X:
 
     """
 
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X.values
         self.M = X.shape[1]
+        if 'batch_size' in kwargs:
+            BATCH_SIZE = kwargs['batch_size']
         # set up models with k = 1,2,3,..., M
         self.models = []
         self.pred_models = []

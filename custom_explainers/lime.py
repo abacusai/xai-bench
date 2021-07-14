@@ -25,7 +25,7 @@ class LimeTabular:
         Control the mode of LIME tabular.
     """
 
-    def __init__(self, model, data, mode="classification"):
+    def __init__(self, model, data, mode="classification", kernel_width=0.75):
         self.model = model
         assert mode in ["classification", "regression"]
         self.mode = mode
@@ -33,7 +33,7 @@ class LimeTabular:
         if str(type(data)).endswith("pandas.core.frame.DataFrame'>"):
             data = data.values
         self.data = data
-        self.explainer = lime.lime_tabular.LimeTabularExplainer(data, mode=mode)
+        self.explainer = lime.lime_tabular.LimeTabularExplainer(data, mode=mode, kernel_width=kernel_width*np.sqrt(data.shape[-1]))
 
         out = self.model(data[0:1])
         if len(out.shape) == 1:
@@ -75,10 +75,10 @@ class LimeTabular:
 
 
 class Lime:
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
-        self.explainer = LimeTabular(self.f, self.X, mode="regression")
+        self.explainer = LimeTabular(self.f, self.X, mode="regression", **kwargs)
 
     def explain(self, x):
         shap_values = self.explainer.attributions(x)

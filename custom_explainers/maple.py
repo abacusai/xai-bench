@@ -19,7 +19,7 @@ class MapleExplainer:
         The background dataset.
     """
 
-    def __init__(self, model, data):
+    def __init__(self, model, data, **kwargs):
         self.model = model
 
         if str(type(data)).endswith("pandas.core.frame.DataFrame'>"):
@@ -38,7 +38,7 @@ class MapleExplainer:
         X_train, X_valid, y_train, y_valid = train_test_split(
             data, out, test_size=0.2, random_state=0
         )
-        self.explainer = MAPLE(X_train, y_train, X_valid, y_valid)
+        self.explainer = MAPLE(X_train, y_train, X_valid, y_valid, **kwargs)
 
     def attributions(self, X, multiply_by_input=False):
         """Compute the MAPLE coef attributions.
@@ -76,7 +76,7 @@ class TreeMapleExplainer:
         The background dataset.
     """
 
-    def __init__(self, model, data):
+    def __init__(self, model, data, **kwargs):
         self.model = model
 
         if str(type(model)).endswith(
@@ -116,7 +116,7 @@ class TreeMapleExplainer:
 
         # _, X_valid, _, y_valid = train_test_split(data, self.model.predict(data), test_size=0.2, random_state=0)
         preds = self.model.predict(data)
-        self.explainer = MAPLE(data, preds, data, preds, fe=self.model, fe_type=fe_type)
+        self.explainer = MAPLE(data, preds, data, preds, fe=self.model, fe_type=fe_type, **kwargs)
 
     def attributions(self, X, multiply_by_input=False):
         """Compute the MAPLE coef attributions.
@@ -334,7 +334,7 @@ class MAPLE:
 
 
 class Maple:
-    def __init__(self, f, X):
+    def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
         is_tree = False
@@ -349,9 +349,9 @@ class Maple:
         ):
             is_tree = True
         if is_tree:
-            self.explainer = TreeMapleExplainer(self.f, self.X)
+            self.explainer = TreeMapleExplainer(self.f, self.X, **kwargs)
         else:
-            self.explainer = MapleExplainer(self.f, self.X)
+            self.explainer = MapleExplainer(self.f, self.X, **kwargs)
 
     def explain(self, x):
         shap_values = self.explainer.attributions(x.values, multiply_by_input=True)

@@ -7,7 +7,7 @@ import numpy as np
 
 
 class Shapley:
-    def __init__(self, model, trained_model, dataset, mode="mse"):
+    def __init__(self, model, trained_model, dataset, mode="mse", **kwargs):
         self.model = model
         self.trained_model = trained_model
         self.dataset = dataset

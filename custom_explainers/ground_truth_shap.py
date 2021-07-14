@@ -19,11 +19,12 @@ def shapley_kernel(M, s):
 
 
 class BruteForceKernelShap:
-    def __init__(self, f, X):
+    def __init__(self, f, X, n=1000, **kwargs):
         self.X = X
         self.f = f
+        self.n = n
         self.dim = X.shape[1]
-        self.reference = self.reference = np.mean(X,axis=0)
+        self.reference = np.mean(X, axis=0)
 
     def explain_x(self, x):
 
@@ -33,14 +34,19 @@ class BruteForceKernelShap:
         V = np.zeros((2 ** self.dim, self.dim))
         for i in range(2 ** self.dim):
             V[i, :] = self.reference  # this works only with independence assumption
-
+        
+        y = np.zeros(2 ** self.dim)
         for i, s in enumerate(powerset(range(self.dim))):
             s = list(s)
             V[i, s] = x[s]
             X[i, s] = 1
             weights[i] = shapley_kernel(self.dim, len(s))
+            x_s = np.copy(self.X[:self.n])
+            x_s[:, s] = x[s]
+            y_temp = self.f(x_s)
+            y[i] = np.mean(y_temp)
 
-        y = self.f(V)
+        # y = self.f(V)
         tmp = np.linalg.inv(np.dot(np.dot(X.T, np.diag(weights)), X))
         coefs = np.dot(tmp, np.dot(np.dot(X.T, np.diag(weights)), y))
         expectation = y[0]

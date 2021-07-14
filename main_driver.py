@@ -118,6 +118,10 @@ def process_args(args):
             args.experiment_json["dataset"]["data_kwargs"]["rhos"] = [float(rho) for rho in args.rhos]
         if args.dataset is not None:
             args.experiment_json["dataset"]["name"] = args.dataset
+        metric_kwargs = {}
+        if "conditional" in args.experiment_json:
+            metric_kwargs['conditional'] = args.experiment_json['conditional']
+
         logging.info(
             f'\n Dataset config is: {json.dumps(args.experiment_json["dataset"])}'
         )
@@ -131,9 +135,9 @@ def process_args(args):
             for mod in args.experiment_json["models"]
         ]
         explainers = [
-            explainer.Explainer(expl) for expl in args.experiment_json["explainers"]
+            explainer.Explainer(expl["name"], **expl["expl_kwargs"]) for expl in args.experiment_json["explainers"]
         ]
-        metrics = [metric.Metric(metr) for metr in args.experiment_json["metrics"]]
+        metrics = [metric.Metric(metr, **metric_kwargs) for metr in args.experiment_json["metrics"]]
         return experiments.Experiment(dataset, models, explainers, metrics)
 
     dataset = datasets.Data(args.dataset, args.mode, **args.data_kwargs)

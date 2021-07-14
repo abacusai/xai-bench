@@ -48,7 +48,7 @@ class Experiment:
     def generate_explanations(self, trained_model, explainer):
         X_train = self.dataset.data[0]
         X_val = self.dataset.val_data[0]
-        explainer = explainer.explainer(trained_model.predict, X_train)
+        explainer = explainer.explainer(trained_model, X_train) if explainer.name == "breakdown" else explainer.explainer(trained_model.predict, X_train)
         feature_weights = explainer.explain(X_val)
         feature_weights_train = None
         metrics_names = [m.name for m in self.metrics]

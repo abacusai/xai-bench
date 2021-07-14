@@ -1,3 +1,4 @@
+from custom_explainers.breakdown import BreakDown
 import shap
 import custom_explainers
 
@@ -10,14 +11,15 @@ valid_explainers = {
     "lime": custom_explainers.Lime,
     "maple": custom_explainers.Maple,
     "l2x": custom_explainers.L2X,
+    "breakdown": custom_explainers.BreakDown,
 }
 
 
 class Explainer:
-    def __init__(self, name):
+    def __init__(self, name, **kwargs):
         if name not in valid_explainers.keys():
             raise NotImplementedError(
                 f"This explainer is not supported at the moment. Explainers supported are {list(valid_explainers.keys())}"
             )
         self.name = name
-        self.explainer = valid_explainers[name]
+        self.explainer = lambda clf, data: valid_explainers[name](clf, data, **kwargs)
