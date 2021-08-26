@@ -37,16 +37,19 @@ def auc(x, y):
 
 
 class Roar:
-    def __init__(self, model, trained_model, dataset):
+    def __init__(self, model, trained_model, dataset=None, conditional="observational", **kwargs):
         self.model = model
         self.trained_model = trained_model
         self.dataset = dataset
-
-    def evaluate(self, X, y, feature_weights, ground_truth_weights, X_train, y_train):
+        self.conditional = conditional
+        assert conditional in ['observational', 'interventional']
+    
+    def evaluate(self, X, y, feature_weights, ground_truth_weights, avg=True, X_train=None, y_train=None, n_sample=100, X_train_feature_weights=None):
+    # def evaluate(self, X, y, feature_weights, ground_truth_weights, X_train, y_train):
         X = X.values
         
-        num_datapoints, num_features = X.shape
-        absolute_weights = abs(feature_weights)
+        num_datapoints, num_features = X.shape[0]+X_train.shape[0], X.shape[1]
+        absolute_weights = abs(np.concatenate([X_train_feature_weights, feature_weights], axis = 0))
 
         # compute the base values of each feature
         avg_feature_values = X.mean(axis=0)
@@ -54,10 +57,9 @@ class Roar:
         roar_values = []
         losses = []
         for cutoff_percent in CUTOFFS:
-
             cutoff = int(cutoff_percent * num_features)
-            X_new = copy.deepcopy(X)
-            y_new = copy.deepcopy(y)
+            X_new = np.concatenate([copy.deepcopy(X_train), copy.deepcopy(X)], axis = 0)
+            y_new = np.concatenate([copy.deepcopy(y_train), copy.deepcopy(y)], axis = 0)
 
             for i in range(num_datapoints):
                 """
@@ -69,12 +71,15 @@ class Roar:
                 # remove the features and replace with average
                 mask = np.ones_like(X_new[i])
                 mask[indices_to_remove] = 0
-                X_new[i], _ = self.dataset.generate(mask=mask, x=X_new[i], n_sample=1)
+                if self.conditional == "observational":
+                    X_new[i], _ = self.dataset.generate(mask=mask, x=X_new[i], n_sample=1)
+                elif self.conditional == "interventional":
+                    X_new[i][~mask.astype(bool)] = avg_feature_values[~mask.astype(bool)]
 
             # train a new model and predict on the test set
-            X_train, y_train, X_test, y_test = split_data(X_new, y_new)
+            X_train_new, y_train_new, X_test, y_test = X_new[:len(X_train)], y_new[:len(X_train)], X_new[len(X_train):], y_new[len(X_train):]
             model_new = copy.deepcopy(self.model)
-            model_new = model_new.train(X_train, y_train.ravel())
+            model_new = model_new.train(X_train_new, y_train_new.ravel())
             preds = model_new.predict(X_test)
 
             loss = evaluate_model(y_test, preds)
