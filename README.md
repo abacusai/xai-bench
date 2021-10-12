@@ -1,6 +1,8 @@
 <p align="center"><img src="img/banner.svg" width=700 /></p>
 
-`XAI-Bench` is a library for benchmarking feature attribution techniques using synthetic data. Unlike real-world datasets, synthetic datasets allow the efficient computation of conditional expected values that are needed to evaluate many explainability metrics such as ground-truth Shapley values, faithfulness, and monotonicity. This repository can be used to benchmark six different feature attribution techniques across ten different evaluation metrics.
+`XAI-Bench` is a library for benchmarking feature attribution techniques using synthetic data. Unlike real-world datasets, synthetic datasets allow the efficient computation of conditional expected values that are needed to evaluate many explainability metrics such as ground-truth Shapley values, faithfulness, and monotonicity. This repository can be used to benchmark six different feature attribution techniques across five popular evaluation metrics.
+
+See our NeurIPS Datasets Track paper at https://arxiv.org/abs/2106.12543.
 
 <p align="center"><img src="img/overview_figure.svg" width=700 /></p>
 
@@ -25,18 +27,6 @@ For running several experiments across multiple datasets, use a script as shown 
 ./script.sh
 ```
 Each `Experiment` object is saved after execution for checkpointing. This way, additional experiments can be run without having to rerun previous computation.
-
-## Citation 
-Please cite our work if you use code from this repo:
-```bibtex
-@misc{xai-bench-2021, 
-  title={Synthetic Benchmarks for Scientific Research in Explainable Machine Learning}, 
-  author={Liu, Yang and Khandagale, Sujay and White, Colin and Neiswanger, Willie}, 
-  year={2021}, 
-  publisher={GitHub}, 
-  howpublished={\url{https://github.com/abacusai/xai-bench}}
- }
- ```
 
 ---
 ## More details
@@ -79,4 +69,15 @@ optional arguments:
   --no-logs             whether to save results or not. You can use this avoid overriding your result files while testing.
   --results-dir RESULTS_DIR
                         Path to save results in csv files.
+```
+
+## Citation 
+Please cite our work if you use code from this repo:
+```bibtex
+@inproceedings{xai-bench-2021,
+  title={Synthetic Benchmarks for Scientific Research in Explainable Machine Learning}, 
+  author={Liu, Yang and Khandagale, Sujay and White, Colin and Neiswanger, Willie}, 
+  booktitle={Advances in Neural Information Processing Systems Datasets Track},
+  year={2021}, 
+} 
 ```
