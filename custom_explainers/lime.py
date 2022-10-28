@@ -1,11 +1,11 @@
 import numpy as np
 from tqdm import tqdm
 
-try:
-    import lime
-    import lime.lime_tabular
-except ImportError:
-    pass
+import lime
+import lime.lime_tabular
+
+from trustyai.model import Model
+from trustyai.explainers import LimeExplainer
 
 
 class LimeTabular:
@@ -60,12 +60,12 @@ class LimeTabular:
         out = [np.zeros(X.shape) for j in range(self.out_dim)]
         for i in tqdm(range(X.shape[0])):
             exp = self.explainer.explain_instance(
-                X[i], self.model, labels=range(self.out_dim), num_features=num_features
+                X[i], self.model, labels=range(self.out_dim), num_features=num_features, num_samples=100,
             )
+
             for j in range(self.out_dim):
                 for k, v in exp.local_exp[j]:
                     out[j][i, k] = v
-
         # because it output two results even for only one model output, and they are negated from what we expect
         if self.mode == "regression":
             for i in range(len(out)):
@@ -78,6 +78,7 @@ class Lime:
     def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
+        kwargs.pop("model_name")
         self.explainer = LimeTabular(self.f, self.X, mode="regression", **kwargs)
 
     def explain(self, x):
@@ -86,3 +87,24 @@ class Lime:
             x.shape[0]
         )  # TODO: maybe we might want to change this later
         return shap_values
+
+
+class LimeTrustyAI:
+    def __init__(self, f, X, **kwargs):
+        self.f = f
+        self.model = Model(f, dataframe_input=True, arrow=True)
+        self.explainer = LimeExplainer(samples=100)
+
+    def explain(self, x):
+        results = []
+        predictions = self.model(x)
+        for i in range(len(x)):
+            saliency = self.explainer.explain(
+                    inputs=x.iloc[i:i + 1],
+                    outputs=predictions[i:i + 1],
+                    model=self.model).map()
+            output_name = list(saliency.keys())[0]
+            results.append(
+                [pfi.getScore() for pfi in saliency[output_name].getPerFeatureImportance()]
+            )
+        return np.array(results)

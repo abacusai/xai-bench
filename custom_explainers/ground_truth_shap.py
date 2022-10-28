@@ -18,54 +18,12 @@ def shapley_kernel(M, s):
     return (M - 1) / (scipy.special.binom(M, s) * s * (M - s))
 
 
-class BruteForceKernelShap:
-    def __init__(self, f, X, n=1000, **kwargs):
-        self.X = X
-        self.f = f
-        self.n = n
-        self.dim = X.shape[1]
-        self.reference = np.mean(X, axis=0)
-
-    def explain_x(self, x):
-
-        X = np.zeros((2 ** self.dim, self.dim))
-        # X[:,-1] = 1
-        weights = np.zeros(2 ** self.dim)
-        V = np.zeros((2 ** self.dim, self.dim))
-        for i in range(2 ** self.dim):
-            V[i, :] = self.reference  # this works only with independence assumption
-        
-        y = np.zeros(2 ** self.dim)
-        for i, s in enumerate(powerset(range(self.dim))):
-            s = list(s)
-            V[i, s] = x[s]
-            X[i, s] = 1
-            weights[i] = shapley_kernel(self.dim, len(s))
-            x_s = np.copy(self.X[:self.n])
-            x_s[:, s] = x[s]
-            y_temp = self.f(x_s)
-            y[i] = np.mean(y_temp)
-
-        # y = self.f(V)
-        tmp = np.linalg.inv(np.dot(np.dot(X.T, np.diag(weights)), X))
-        coefs = np.dot(tmp, np.dot(np.dot(X.T, np.diag(weights)), y))
-        expectation = y[0]
-        return expectation, coefs
-
-    def explain(self, X):
-        self.expected_values = np.zeros((X.shape[0], 1))
-        shap_values = np.zeros((X.shape[0], self.dim))
-        for idx, x in tqdm(enumerate(X.values)):
-            self.expected_values[idx], shap_values[idx] = self.explain_x(x)
-        return shap_values
-
-
 class GroundTruthShap:
     def __init__(
-        self,
-        f=None,  # model to explain, if None then explain dataset
-        dataset=None,  # dataset to explain
-        n=20000,  # number of samples to estimate E(f(x_1|x_2 = x* ))
+            self,
+            f=None,  # model to explain, if None then explain dataset
+            dataset=None,  # dataset to explain
+            n=20000,  # number of samples to estimate E(f(x_1|x_2 = x* ))
     ):
 
         self.dataset = dataset
@@ -106,7 +64,6 @@ class GroundTruthShap:
         coefs = np.dot(tmp, np.dot(np.dot(X.T, np.diag(weights)), y))
         expectation = y[0]
         return expectation, coefs
-
 
 # # test
 # N = 10

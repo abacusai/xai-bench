@@ -1,17 +1,12 @@
-from custom_explainers.breakdown import BreakDown
-import shap
-import custom_explainers
+from xai_bench import custom_explainers
 
 valid_explainers = {
-    "shap": custom_explainers.Shap,
-    "shapr": custom_explainers.ShapR,
-    "kernelshap": custom_explainers.KernelShap,
-    "brutekernelshap": custom_explainers.BruteForceKernelShap,
-    "random": custom_explainers.Random,
-    "lime": custom_explainers.Lime,
-    "maple": custom_explainers.Maple,
-    "l2x": custom_explainers.L2X,
-    "breakdown": custom_explainers.BreakDown,
+    "shap_trustyai": custom_explainers.shap.KernelShapTrustyAI,
+    "lime_trustyai": custom_explainers.lime.LimeTrustyAI,
+    # "kernelshap": custom_explainers.KernelShap,
+    # "random": custom_explainers.Random,
+    # "lime": custom_explainers.Lime,
+    # "limetrustyai": custom_explainers.LimeTrustyAI,
 }
 
 
@@ -22,4 +17,8 @@ class Explainer:
                 f"This explainer is not supported at the moment. Explainers supported are {list(valid_explainers.keys())}"
             )
         self.name = name
-        self.explainer = lambda clf, data: valid_explainers[name](clf, data, **kwargs)
+
+        def explainerinit(clf, data, modelname):
+            kwargs['model_name'] = modelname
+            return valid_explainers[name](clf, data, **kwargs)
+        self.explainer = explainerinit

@@ -1,19 +1,25 @@
 import shap
 import numpy as np
-from custom_explainers import GroundTruthShap
 from tqdm import tqdm
 import logging
+import time
 from sklearn.metrics import accuracy_score, mean_squared_error
+
+from custom_explainers import GroundTruthShap
+
 
 class DatasetAsModel():
     def __init__(self, data_class) -> None:
         self.data_class = data_class
         self.name = "dataset"
+
     def predict(self, X):
         # import pdb; pdb.set_trace()
         return self.data_class.generatetarget(X)
+
     def train(self, X, y):
         return DatasetAsModel(self.data_class)
+
 
 class Experiment:
     def __init__(
@@ -45,10 +51,10 @@ class Experiment:
                 self.trained_models.append(model.train(X, y.ravel()))
         return self.trained_models
 
-    def generate_explanations(self, trained_model, explainer):
+    def generate_explanations(self, trained_model, explainer, modelname):
         X_train = self.dataset.data[0]
         X_val = self.dataset.val_data[0]
-        explainer = explainer.explainer(trained_model, X_train) if explainer.name == "breakdown" else explainer.explainer(trained_model.predict, X_train)
+        explainer = explainer.explainer(trained_model, X_train, modelname) if explainer.name == "breakdown" else explainer.explainer(trained_model.predict, X_train, modelname)
         feature_weights = explainer.explain(X_val)
         feature_weights_train = None
         metrics_names = [m.name for m in self.metrics]
@@ -115,17 +121,16 @@ class Experiment:
         return scores
 
     def get_results(self):
-        
         if not self.trained_models:
             self.train_models()
-        results = {}
-        results["dataset"] = self.dataset.name
-        results["dataset_kwargs"] = self.dataset.kwargs
-        results["models"] = {}
-        results["model_perfs"] = self.log_model_metrics()
+        results = []
 
+        # base_result_dict["dataset"] = self.dataset.name
+        # base_result_dict["dataset_kwargs"] = self.dataset.kwargs
+        # base_result_dict["models"] = {}
+        model_perfs = self.log_model_metrics()
         for model, trained_model in zip(self.models, self.trained_models):
-            results["models"][model.name] = {}
+            #results["models"][model.name] = {}
             if model.name not in self.ground_truth_explanations:
                 ground_truth_expectations, ground_truth_weights= self.generate_ground_truth_explanations(trained_model)
                 self.ground_truth_explanations[model.name] = ground_truth_expectations, ground_truth_weights
@@ -133,12 +138,22 @@ class Experiment:
             
             for explainer in self.explainers:
                 logging.info(f"Explaining {model.name} with {explainer.name}")
+                t_start = time.time()
                 if explainer.name not in self.explanations[model.name]:
-                    feature_weights, feature_weights_train = self.generate_explanations(trained_model, explainer)
+                    feature_weights, feature_weights_train = self.generate_explanations(trained_model, explainer, model.name)
                     self.explanations[model.name][explainer.name] = feature_weights, feature_weights_train
-                results["models"][model.name][explainer.name] = {}
+                runtime = time.time() - t_start
+                #results["models"][model.name][explainer.name] = {"runtime": runtime}
 
+                row_result = {}
+                row_result['dataset'] = self.dataset.name
+                row_result['dataset_kwargs'] = self.dataset.kwargs
+                row_result['model'] = model.name
+                row_result['explainer'] = explainer.name
+                row_result['runtime'] = runtime
+                row_result['model_perf'] = model_perfs[model.name]
                 for metric in self.metrics:
+                    print(model.name, explainer.name, metric.name)
                     score = self.evaluate_explanations(
                         model,
                         trained_model,
@@ -147,6 +162,7 @@ class Experiment:
                         self.ground_truth_explanations[model.name][1],
                         self.explanations[model.name][explainer.name][1]
                     )
-                    results["models"][model.name][explainer.name][metric.name] = score
-
+                    #results["models"][model.name][explainer.name][metric.name] = score
+                    row_result[metric.name] = score
+                results.append(row_result)
         return results

@@ -37,7 +37,7 @@ class MixtureOfGaussian:
         X = np.zeros((n_sample,self.dim))
         # return the full distribution
         if len(np.where(mask == 0)[0]) == len(mask):
-            sample_k = np.rand.randint(self.k)
+            sample_k = np.random.randint(self.k)
             g = self.gaussians[sample_k]
             X += np.random.multivariate_normal(g.mu, g.sigma, n_sample)
         # return a datapoint since everything is fixed

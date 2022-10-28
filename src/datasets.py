@@ -39,9 +39,8 @@ class Data:
             )
         self.name = name
         self.kwargs = kwargs
-        data_kwargs = {k: eval(str(v)) for k, v in kwargs.items()}
         self.mode = mode
-        self.data = valid_datasets[mode][name](**data_kwargs)
+        self.data = valid_datasets[mode][name](**self.kwargs)
         self.data_class = None  # the underlying data generating class is unknown
         if isinstance(self.data, synthetic_datasets.CustomDataset):
             self.data_class = (
