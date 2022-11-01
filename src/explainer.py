@@ -1,12 +1,12 @@
-from xai_bench import custom_explainers
+from xai_bench_trustyai import custom_explainers
 
 valid_explainers = {
     "shap_trustyai": custom_explainers.shap.KernelShapTrustyAI,
     "lime_trustyai": custom_explainers.lime.LimeTrustyAI,
-    # "kernelshap": custom_explainers.KernelShap,
-    # "random": custom_explainers.Random,
-    # "lime": custom_explainers.Lime,
-    # "limetrustyai": custom_explainers.LimeTrustyAI,
+    "shap": custom_explainers.KernelShap,
+    "random": custom_explainers.Random,
+    "lime": custom_explainers.Lime,
+    "limetrustyai": custom_explainers.LimeTrustyAI,
 }
 
 

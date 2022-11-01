@@ -1,9 +1,12 @@
+import os
+
 import shap
 import numpy as np
 from tqdm import tqdm
 import logging
 import time
 from sklearn.metrics import accuracy_score, mean_squared_error
+import pickle as pkl
 
 from custom_explainers import GroundTruthShap
 
@@ -42,6 +45,7 @@ class Experiment:
 
     def train_models(self):
         self.check_dataset()
+        print("training model")
         X, y = self.dataset.data[0].to_numpy(), self.dataset.data[1]
         for idx, model in enumerate(self.models):
             if model.model == "dataset":
@@ -49,6 +53,7 @@ class Experiment:
                 self.trained_models.append(DatasetAsModel(self.dataset.data_class))
             else:
                 self.trained_models.append(model.train(X, y.ravel()))
+        print("training done")
         return self.trained_models
 
     def generate_explanations(self, trained_model, explainer, modelname):
@@ -70,18 +75,31 @@ class Experiment:
                 self.dataset.val_data[0]
             )
         if self.dataset.data_class:
-            X = self.dataset.val_data[0]
-            explainer = GroundTruthShap(trained_model.predict, self.dataset.data_class)
+            dataset_identifier = "{}_".format(self.dataset.name) + "_".join(
+                "{}={}".format(k, v) for k, v in self.dataset.kwargs.items()) + ".pkl"
 
-            ground_truth_expectations = []
-            ground_truth_weights = []
+            if dataset_identifier in os.listdir("xai_bench_trustyai/cached_data"):
+                print("Loading cached ground truths")
+                with open("xai_bench_trustyai/cached_data/"+dataset_identifier, "rb") as f:
+                    ground_truth_weights = pkl.load(f)
+            else:
+                print("Generating new ground truths")
+                X = self.dataset.val_data[0]
+                explainer = GroundTruthShap(trained_model.predict, self.dataset.data_class)
 
-            for x in tqdm(X.to_numpy()):
-                ground_truth_expectation, ground_truth_weight = explainer.explain(x)
-                ground_truth_expectations.append(ground_truth_expectation)
-                ground_truth_weights.append(ground_truth_weight)
+                ground_truth_expectations = []
+                ground_truth_weights = []
 
-            return np.squeeze(np.array(ground_truth_expectations)), np.squeeze(np.array(ground_truth_weights))
+                for x in tqdm(X.to_numpy()):
+                    ground_truth_expectation, ground_truth_weight = explainer.explain(x)
+                    ground_truth_expectations.append(ground_truth_expectation)
+                    ground_truth_weights.append(ground_truth_weight)
+
+                ground_truth_weights = np.squeeze(np.array(ground_truth_expectations)), np.squeeze(np.array(ground_truth_weights))
+                with open("xai_bench_trustyai/cached_data/" + dataset_identifier, "wb") as f:
+                    pkl.dump(ground_truth_weights, f)
+
+            return ground_truth_weights
 
         raise NotImplementedError(
             "Cannot use GroundTruthShap without knowing the underlying distribution. Use one of the synthetic datasets."
@@ -147,11 +165,12 @@ class Experiment:
 
                 row_result = {}
                 row_result['dataset'] = self.dataset.name
-                row_result['dataset_kwargs'] = self.dataset.kwargs
+                row_result.update({"dataset_{}".format(k):v for k,v in self.dataset.kwargs.items()})
                 row_result['model'] = model.name
                 row_result['explainer'] = explainer.name
                 row_result['runtime'] = runtime
-                row_result['model_perf'] = model_perfs[model.name]
+                row_result['model_perf_train'] = model_perfs[model.name][0]
+                row_result['model_perf_test'] = model_perfs[model.name][1]
                 for metric in self.metrics:
                     print(model.name, explainer.name, metric.name)
                     score = self.evaluate_explanations(
@@ -163,6 +182,6 @@ class Experiment:
                         self.explanations[model.name][explainer.name][1]
                     )
                     #results["models"][model.name][explainer.name][metric.name] = score
-                    row_result[metric.name] = score
+                    row_result["metric_"+metric.name] = score
                 results.append(row_result)
         return results

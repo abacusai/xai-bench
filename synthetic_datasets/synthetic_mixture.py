@@ -28,7 +28,7 @@ class MixtureOfGaussian:
         for i in range(k):
             # print(self.mus[i])
             # print(self.sigmas[i])
-            gaussian = MultivariateGaussian(self.mus[i],self.sigmas[i],self.dim)
+            gaussian = MultivariateGaussian(self.mus[i],self.sigmas[i],self.dim, precompute=True)
             self.gaussians.append(gaussian)
 
     def generateconditional(self, mask, x, n_sample):

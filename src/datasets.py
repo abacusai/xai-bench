@@ -5,7 +5,7 @@ import numpy as np
 import sklearn.datasets
 from sklearn.datasets import fetch_openml
 import os
-import synthetic_datasets
+from xai_bench_trustyai import synthetic_datasets
 from numpy import array
 
 try:

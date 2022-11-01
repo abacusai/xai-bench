@@ -1,5 +1,5 @@
 import copy
-from synthetic_datasets.custom_dataset import CustomDataset
+from .custom_dataset import CustomDataset
 import numpy as np
 import pandas as pd
 
