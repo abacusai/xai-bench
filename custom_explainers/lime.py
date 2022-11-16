@@ -89,11 +89,32 @@ class Lime:
         return shap_values
 
 
-class LimeTrustyAI:
+class LimeTrustyAI_MLP:
     def __init__(self, f, X, **kwargs):
         self.f = f
         self.model = Model(f, dataframe_input=True, arrow=True)
-        self.explainer = LimeExplainer(samples=100)
+        self.explainer = LimeExplainer(samples=100, use_wlr_model=False)
+
+    def explain(self, x):
+        results = []
+        predictions = self.model(x)
+        for i in range(len(x)):
+            saliency = self.explainer.explain(
+                    inputs=x.iloc[i:i + 1],
+                    outputs=predictions[i:i + 1],
+                    model=self.model).map()
+            output_name = list(saliency.keys())[0]
+            results.append(
+                [pfi.getScore() for pfi in saliency[output_name].getPerFeatureImportance()]
+            )
+        return np.array(results)
+
+
+class LimeTrustyAI_WLR:
+    def __init__(self, f, X, **kwargs):
+        self.f = f
+        self.model = Model(f, dataframe_input=True, arrow=True)
+        self.explainer = LimeExplainer(samples=100, use_wlr_model=True)
 
     def explain(self, x):
         results = []

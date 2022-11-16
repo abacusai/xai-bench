@@ -2,11 +2,11 @@ from xai_bench_trustyai import custom_explainers
 
 valid_explainers = {
     "shap_trustyai": custom_explainers.shap.KernelShapTrustyAI,
-    "lime_trustyai": custom_explainers.lime.LimeTrustyAI,
     "shap": custom_explainers.KernelShap,
     "random": custom_explainers.Random,
     "lime": custom_explainers.Lime,
-    "limetrustyai": custom_explainers.LimeTrustyAI,
+    "limetrustyai_wlr": custom_explainers.LimeTrustyAI_WLR,
+    "limetrustyai_mlp": custom_explainers.LimeTrustyAI_MLP,
 }
 
 
@@ -14,7 +14,7 @@ class Explainer:
     def __init__(self, name, **kwargs):
         if name not in valid_explainers.keys():
             raise NotImplementedError(
-                f"This explainer is not supported at the moment. Explainers supported are {list(valid_explainers.keys())}"
+                f"This explainer ({name}) is not supported at the moment. Explainers supported are {list(valid_explainers.keys())}"
             )
         self.name = name
 
