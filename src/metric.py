@@ -1,14 +1,14 @@
-import custom_metrics
+from ..custom_metrics import *
 
 valid_metrics = {
-    "faithfulness": custom_metrics.Faithfulness,
-    "roar_faithfulness": custom_metrics.ROARFaithfulness,
-    "roar_monotonicity": custom_metrics.ROARMonotonicity,
-    "monotonicity": custom_metrics.Monotonicity,
-    "roar": custom_metrics.Roar,
-    "shapley": custom_metrics.Shapley,
-    "shapley_corr": custom_metrics.ShapleyCorr,
-    "infidelity": custom_metrics.Infidelity
+    "faithfulness": Faithfulness,
+    "roar_faithfulness": ROARFaithfulness,
+    "roar_monotonicity": ROARMonotonicity,
+    "monotonicity": Monotonicity,
+    "roar": Roar,
+    "shapley": Shapley,
+    "shapley_corr": ShapleyCorr,
+    "infidelity": Infidelity
 }
 
 

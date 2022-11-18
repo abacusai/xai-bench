@@ -18,7 +18,7 @@ class KernelShap:
         )
 
     def explain(self, x):
-        shap_values = self.explainer.shap_values(x, nsamples=self.kwargs.get("samples"))
+        shap_values = self.explainer.shap_values(x, nsamples=self.kwargs.get("samples", "auto"))
         self.expected_values, shap_values = self.explainer.expected_value, shap_values
         return shap_values
 

@@ -33,7 +33,11 @@ class LimeTabular:
         if str(type(data)).endswith("pandas.core.frame.DataFrame'>"):
             data = data.values
         self.data = data
-        self.explainer = lime.lime_tabular.LimeTabularExplainer(data, mode=mode, kernel_width=kernel_width*np.sqrt(data.shape[-1]))
+        self.explainer = lime.lime_tabular.LimeTabularExplainer(
+            data,
+            mode=mode,
+            kernel_width=kernel_width*np.sqrt(data.shape[-1])
+        )
         self.kwargs = kwargs
 
         out = self.model(data[0:1])
@@ -61,7 +65,11 @@ class LimeTabular:
         out = [np.zeros(X.shape) for j in range(self.out_dim)]
         for i in tqdm(range(X.shape[0])):
             exp = self.explainer.explain_instance(
-                X[i], self.model, labels=range(self.out_dim), num_features=num_features, num_samples=self.kwargs["samples"],
+                X[i],
+                self.model,
+                labels=range(self.out_dim),
+                num_features=num_features,
+                num_samples=self.kwargs.get("samples"),
             )
 
             for j in range(self.out_dim):

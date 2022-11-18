@@ -2,3 +2,5 @@
 **/*.pkl
 **/*.png
 **/*.ipynb
+**/*.pdf
+**/__pycache__

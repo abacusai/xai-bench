@@ -1,6 +1,4 @@
 import os
-
-import shap
 import numpy as np
 from tqdm import tqdm
 import logging
@@ -8,7 +6,7 @@ import time
 from sklearn.metrics import accuracy_score, mean_squared_error
 import pickle as pkl
 
-from custom_explainers import GroundTruthShap
+from ..custom_explainers import GroundTruthShap
 
 
 class DatasetAsModel():
@@ -45,7 +43,6 @@ class Experiment:
 
     def train_models(self):
         self.check_dataset()
-        print("training model")
         X, y = self.dataset.data[0].to_numpy(), self.dataset.data[1]
         for idx, model in enumerate(self.models):
             if model.model == "dataset":
@@ -53,7 +50,6 @@ class Experiment:
                 self.trained_models.append(DatasetAsModel(self.dataset.data_class))
             else:
                 self.trained_models.append(model.train(X, y.ravel()))
-        print("training done")
         return self.trained_models
 
     def generate_explanations(self, trained_model, explainer, modelname):
@@ -79,11 +75,11 @@ class Experiment:
                 "{}={}".format(k, v) for k, v in self.dataset.kwargs.items()) + ".pkl"
 
             if dataset_identifier in os.listdir("xai_bench_trustyai/cached_data"):
-                print("Loading cached ground truths")
+                print("Loading cached ground truths...")
                 with open("xai_bench_trustyai/cached_data/"+dataset_identifier, "rb") as f:
                     ground_truth_weights = pkl.load(f)
             else:
-                print("Generating new ground truths")
+                print("Generating new ground truths...")
                 X = self.dataset.val_data[0]
                 explainer = GroundTruthShap(trained_model.predict, self.dataset.data_class)
 
@@ -165,7 +161,15 @@ class Experiment:
 
                 row_result = {}
                 row_result['dataset'] = self.dataset.name
-                row_result.update({"dataset_{}".format(k):v for k,v in self.dataset.kwargs.items()})
+
+                dataset_info = {}
+                for k,v in self.dataset.kwargs.items():
+                    new_k = "dataset_{}".format(k)
+                    if isinstance(v, np.ndarray):
+                        dataset_info[new_k] = v.tolist()
+                    else:
+                        dataset_info[new_k] = v
+                row_result.update(dataset_info)
                 row_result['model'] = model.name
                 row_result['explainer'] = explainer.label
                 row_result['runtime'] = runtime

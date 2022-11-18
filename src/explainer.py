@@ -1,11 +1,11 @@
-from xai_bench_trustyai import custom_explainers
+from ..custom_explainers import *
 
 valid_explainers = {
-    "shap_trustyai": custom_explainers.shap.KernelShapTrustyAI,
-    "shap": custom_explainers.KernelShap,
-    "random": custom_explainers.Random,
-    "lime": custom_explainers.Lime,
-    "lime_trustyai": custom_explainers.LimeTrustyAI,
+    "shap_trustyai": shap.KernelShapTrustyAI,
+    "shap": KernelShap,
+    "random": Random,
+    "lime": Lime,
+    "lime_trustyai": LimeTrustyAI,
 }
 
 
@@ -21,4 +21,4 @@ class Explainer:
             return valid_explainers[name](clf, data, **kwargs)
 
         self.explainer = explainerinit
-        self.label = kwargs.get("label", "default")
+        self.label = kwargs.get("label", name)
