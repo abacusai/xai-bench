@@ -10,12 +10,16 @@ class KernelShap:
     def __init__(self, f, X, **kwargs):
         self.f = f
         self.X = X
-        self.explainer = shap.KernelExplainer(self.f, self.X[:100], **kwargs)
+        self.kwargs = kwargs
+        self.explainer = shap.KernelExplainer(
+            self.f,
+            self.X[:kwargs.get("background_size", 100)],
+            **kwargs
+        )
 
     def explain(self, x):
-        shap_values = self.explainer.shap_values(x, nsamples=NSAMPLES)
+        shap_values = self.explainer.shap_values(x, nsamples=self.kwargs.get("samples"))
         self.expected_values, shap_values = self.explainer.expected_value, shap_values
-        print(shap_values.shape)
         return shap_values
 
 
@@ -23,8 +27,11 @@ class KernelShap:
 class KernelShapTrustyAI:
     def __init__(self, f, X, **kwargs):
         self.f = f
-        self.model = Model(f, dataframe_input=True, arrow=True)
-        self.explainer = SHAPExplainer(background=X[:100], batch_size=20, samples=NSAMPLES)
+        self.model = Model(f, dataframe_input=True, arrow=kwargs.get("arrow", True))
+        self.explainer = SHAPExplainer(
+            background=X[:kwargs.get("background_size", 100)],
+            **kwargs
+        )
 
     def explain(self, x):
         results = []
@@ -34,8 +41,7 @@ class KernelShapTrustyAI:
                     inputs=x.iloc[i:i + 1],
                     outputs=predictions[i:i + 1],
                     model=self.model).get_saliencies()
-            print("shap explanation",i)
-            print(globals())
+
             output_name = list(saliency.keys())[0]
             results.append(
                 [float(pfi.getScore()) for pfi in saliency[output_name].getPerFeatureImportance()[:-1]]

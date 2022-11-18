@@ -25,7 +25,7 @@ class LimeTabular:
         Control the mode of LIME tabular.
     """
 
-    def __init__(self, model, data, mode="classification", kernel_width=0.75):
+    def __init__(self, model, data, mode="classification", kernel_width=0.75, **kwargs):
         self.model = model
         assert mode in ["classification", "regression"]
         self.mode = mode
@@ -34,6 +34,7 @@ class LimeTabular:
             data = data.values
         self.data = data
         self.explainer = lime.lime_tabular.LimeTabularExplainer(data, mode=mode, kernel_width=kernel_width*np.sqrt(data.shape[-1]))
+        self.kwargs = kwargs
 
         out = self.model(data[0:1])
         if len(out.shape) == 1:
@@ -60,7 +61,7 @@ class LimeTabular:
         out = [np.zeros(X.shape) for j in range(self.out_dim)]
         for i in tqdm(range(X.shape[0])):
             exp = self.explainer.explain_instance(
-                X[i], self.model, labels=range(self.out_dim), num_features=num_features, num_samples=100,
+                X[i], self.model, labels=range(self.out_dim), num_features=num_features, num_samples=self.kwargs["samples"],
             )
 
             for j in range(self.out_dim):
@@ -89,32 +90,11 @@ class Lime:
         return shap_values
 
 
-class LimeTrustyAI_MLP:
+class LimeTrustyAI:
     def __init__(self, f, X, **kwargs):
         self.f = f
-        self.model = Model(f, dataframe_input=True, arrow=True)
-        self.explainer = LimeExplainer(samples=100, use_wlr_model=False)
-
-    def explain(self, x):
-        results = []
-        predictions = self.model(x)
-        for i in range(len(x)):
-            saliency = self.explainer.explain(
-                    inputs=x.iloc[i:i + 1],
-                    outputs=predictions[i:i + 1],
-                    model=self.model).map()
-            output_name = list(saliency.keys())[0]
-            results.append(
-                [pfi.getScore() for pfi in saliency[output_name].getPerFeatureImportance()]
-            )
-        return np.array(results)
-
-
-class LimeTrustyAI_WLR:
-    def __init__(self, f, X, **kwargs):
-        self.f = f
-        self.model = Model(f, dataframe_input=True, arrow=True)
-        self.explainer = LimeExplainer(samples=100, use_wlr_model=True)
+        self.model = Model(f, dataframe_input=True, arrow=kwargs.get("arrow", True))
+        self.explainer = LimeExplainer(**kwargs)
 
     def explain(self, x):
         results = []

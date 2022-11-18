@@ -5,8 +5,7 @@ valid_explainers = {
     "shap": custom_explainers.KernelShap,
     "random": custom_explainers.Random,
     "lime": custom_explainers.Lime,
-    "limetrustyai_wlr": custom_explainers.LimeTrustyAI_WLR,
-    "limetrustyai_mlp": custom_explainers.LimeTrustyAI_MLP,
+    "lime_trustyai": custom_explainers.LimeTrustyAI,
 }
 
 
@@ -17,8 +16,9 @@ class Explainer:
                 f"This explainer ({name}) is not supported at the moment. Explainers supported are {list(valid_explainers.keys())}"
             )
         self.name = name
-
         def explainerinit(clf, data, modelname):
             kwargs['model_name'] = modelname
             return valid_explainers[name](clf, data, **kwargs)
+
         self.explainer = explainerinit
+        self.label = kwargs.get("label", "default")

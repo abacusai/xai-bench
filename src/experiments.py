@@ -167,7 +167,7 @@ class Experiment:
                 row_result['dataset'] = self.dataset.name
                 row_result.update({"dataset_{}".format(k):v for k,v in self.dataset.kwargs.items()})
                 row_result['model'] = model.name
-                row_result['explainer'] = explainer.name
+                row_result['explainer'] = explainer.label
                 row_result['runtime'] = runtime
                 row_result['model_perf_train'] = model_perfs[model.name][0]
                 row_result['model_perf_test'] = model_perfs[model.name][1]
