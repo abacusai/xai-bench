@@ -183,7 +183,7 @@ def plot_test_results(df, level):
     ), color='k', fontsize=16)
     plt.tight_layout()
     fig.legend(*zip(*labels), loc='lower center', bbox_to_anchor=(.5, -.05), ncols=5)
-    plt.savefig("xai_bench_trustyai/results/plots/xai_bench_l{}.pdf".format(level), bbox_inches='tight')
+    plt.savefig("trustyai_xai_bench/results/plots/xai_bench_l{}.pdf".format(level), bbox_inches='tight')
     plt.show()
 
 
@@ -193,6 +193,6 @@ def run_benchmark_config(config, save=False, plot=False):
     if plot:
         plot_test_results(results_df, config)
     if save:
-        results_df.to_pickle("xai_bench_trustyai/results/level_{}_results.pkl".format(config))
+        results_df.to_pickle("trustyai_xai_bench/results/level_{}_results.pkl".format(config))
     return results_df
 

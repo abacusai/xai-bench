@@ -74,9 +74,9 @@ class Experiment:
             dataset_identifier = "{}_".format(self.dataset.name) + "_".join(
                 "{}={}".format(k, v) for k, v in self.dataset.kwargs.items()) + ".pkl"
 
-            if dataset_identifier in os.listdir("xai_bench_trustyai/cached_data"):
+            if dataset_identifier in os.listdir("trustyai_xai_bench/cached_data"):
                 print("Loading cached ground truths...")
-                with open("xai_bench_trustyai/cached_data/"+dataset_identifier, "rb") as f:
+                with open("trustyai_xai_bench/cached_data/"+dataset_identifier, "rb") as f:
                     ground_truth_weights = pkl.load(f)
             else:
                 print("Generating new ground truths...")
@@ -92,7 +92,7 @@ class Experiment:
                     ground_truth_weights.append(ground_truth_weight)
 
                 ground_truth_weights = np.squeeze(np.array(ground_truth_expectations)), np.squeeze(np.array(ground_truth_weights))
-                with open("xai_bench_trustyai/cached_data/" + dataset_identifier, "wb") as f:
+                with open("trustyai_xai_bench/cached_data/" + dataset_identifier, "wb") as f:
                     pkl.dump(ground_truth_weights, f)
 
             return ground_truth_weights
