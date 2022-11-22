@@ -111,7 +111,7 @@ class LimeTrustyAI:
             saliency = self.explainer.explain(
                     inputs=x.iloc[i:i + 1],
                     outputs=predictions[i:i + 1],
-                    model=self.model).map()
+                    model=self.model).saliency_map()
             output_name = list(saliency.keys())[0]
             results.append(
                 [pfi.getScore() for pfi in saliency[output_name].getPerFeatureImportance()]
