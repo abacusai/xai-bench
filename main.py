@@ -213,7 +213,11 @@ def plot_test_results(df, suffix):
         ax = plt.gca()
         locs = np.arange(n_exp)
         ax.xaxis.set_ticks(locs, minor=True)
-        ax.yaxis.set_ticks(np.array(plt.yticks()[0]), minor=True)
+        if "runtime" not in metric_name:
+            ax.set_ylim(0, 1)
+            ax.yaxis.set_ticks(np.linspace(0, 1, 5), minor=True)
+        else:
+            ax.yaxis.set_ticks(np.array(plt.yticks()[0]), minor=True)
         ax.xaxis.set(ticks=locs + .5, ticklabels=explainers)
         ax.grid(True, which='minor', axis='x')
         ax.grid(False, which='major', axis='x')
