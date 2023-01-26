@@ -1,4 +1,4 @@
-from ..custom_explainers import *
+from custom_explainers import *
 
 valid_explainers = {
     "shap_trustyai": shap.KernelShapTrustyAI,

@@ -1,4 +1,4 @@
-from ..custom_metrics import *
+from custom_metrics import *
 
 valid_metrics = {
     "faithfulness": Faithfulness,

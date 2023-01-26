@@ -5,3 +5,4 @@
 **/*.pdf
 **/__pycache__
 **/*.json
+.idea/**

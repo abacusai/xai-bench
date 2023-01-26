@@ -101,13 +101,13 @@ class Lime:
 class LimeTrustyAI:
     def __init__(self, f, X, **kwargs):
         self.f = f
-        self.model = Model(f, dataframe_input=True, arrow=kwargs.get("arrow", True))
+        self.model = Model(f, dataframe_input=True)
         self.explainer = LimeExplainer(**kwargs)
 
     def explain(self, x):
         results = []
         predictions = self.model(x)
-        for i in range(len(x)):
+        for i in tqdm(range(len(x))):
             saliency = self.explainer.explain(
                     inputs=x.iloc[i:i + 1],
                     outputs=predictions[i:i + 1],

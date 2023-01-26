@@ -1,4 +1,6 @@
 # pylint: disable=R0801
+import argparse
+
 from datetime import datetime
 
 import pandas as pd
@@ -7,8 +9,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib as mpl
+import pathlib
 
-from .src import datasets, explainer, metric, experiments, model
+import sys
+try:
+    # try importing as if xai_bench is a module
+    from .src import datasets, explainer, metric, experiments, model
+except ImportError as e:
+    if "relative import" in str(e):
+        # try importing as if called from this file
+        sys.path.append('../')
+        from src import datasets, explainer, metric, experiments, model
+    else:
+        raise e
+
+current_dir = pathlib.Path(__file__).parent
 plt.style.use('https://raw.githubusercontent.com/RobGeada/stylelibs/main/material_rh.mplstyle')
 
 """
@@ -27,7 +42,7 @@ LEVEL_0_CONFIG = {
     "bench_datasets": ["gaussianPiecewiseConstant"],
     "bench_explainers": {
         "shap_trustyai": {},
-        "lime_trustyai": {"samples": 100, "normalise_weights": False},
+        "lime_trustyai": {"samples": 100, "normalise_weights": False, "separable_dataset_ratio": .9},
     },
     "bench_models": ["mlp"],
     "bench_metrics": ["roar_faithfulness", "roar_monotonicity", "faithfulness", "monotonicity",
@@ -41,8 +56,36 @@ LEVEL_1_CONFIG = {
     "bench_explainers": {
         "shap_trustyai": {},
         "shap": {},
-        "lime_trustyai": {"samples": 100, "normalise_weights": False},
+        "lime_trustyai": {"samples": 100, "normalise_weights": False, "separable_dataset_ratio": .9},
         "lime": {"samples": 100},
+        "random": {}
+    },
+    "bench_models": ["lr", "dtree", "mlp"],
+    "bench_metrics": ["roar_faithfulness", "roar_monotonicity", "faithfulness", "monotonicity",
+                      "shapley", "shapley_corr", "infidelity"],
+    "num_features": 5
+}
+
+LEVEL_LIME_CONFIG = {
+    "rhos": np.linspace(0, 1, 5),
+    "bench_datasets": ["gaussianLinear", "gaussianNonLinearAdditive", "gaussianPiecewiseConstant"],
+    "bench_explainers": {
+        "lime_trustyai": {"samples": 100, "normalise_weights": False, "separable_dataset_ratio": .9},
+        "lime": {"samples": 100},
+        "random": {}
+    },
+    "bench_models": ["lr", "dtree", "mlp"],
+    "bench_metrics": ["roar_faithfulness", "roar_monotonicity", "faithfulness", "monotonicity",
+                      "shapley", "shapley_corr", "infidelity"],
+    "num_features": 5
+}
+
+LEVEL_SHAP_CONFIG = {
+    "rhos": np.linspace(0, 1, 5),
+    "bench_datasets": ["gaussianLinear", "gaussianNonLinearAdditive", "gaussianPiecewiseConstant"],
+    "bench_explainers": {
+        "shap_trustyai": {},
+        "shap": {},
         "random": {}
     },
     "bench_models": ["lr", "dtree", "mlp"],
@@ -58,8 +101,8 @@ LEVEL_2_CONFIG = {
     "bench_explainers": {
         "shap_trustyai": {},
         "shap": {},
-        "lime_trustyai": {"samples": 100, "normalise_weights": False},
-        "lime": {"samples": 100},
+        "lime_trustyai": {"samples": 100, "normalise_weights": False, "separable_dataset_ratio": .9},
+        "lime": {"samples": 100, },
         "random": {}
     },
     "bench_models": ["lr", "dtree", "mlp"],
@@ -68,8 +111,16 @@ LEVEL_2_CONFIG = {
     "num_features": 7
 }
 
-configs = [LEVEL_0_CONFIG, LEVEL_1_CONFIG, LEVEL_2_CONFIG]
 
+
+configs = [LEVEL_0_CONFIG, LEVEL_1_CONFIG, LEVEL_2_CONFIG]
+config_dict = {
+    "0": LEVEL_0_CONFIG,
+    "1": LEVEL_1_CONFIG,
+    "2": LEVEL_2_CONFIG,
+    "lime": LEVEL_LIME_CONFIG,
+    "shap": LEVEL_SHAP_CONFIG
+}
 
 def run_test_config(test_config):
     """Run a particular test config"""
@@ -113,7 +164,7 @@ def run_test_config(test_config):
     return pd.DataFrame(data)
 
 
-def plot_test_results(df, level):
+def plot_test_results(df, suffix):
     """Show the results of a benchmark as violin plots"""
     # get data information from df
     metrics = [x for x in list(df) if "metric" in x or x == 'runtime']
@@ -178,12 +229,15 @@ def plot_test_results(df, level):
 
     # title and save
     plt.suptitle("TrustyAI XAIBench L{} @ {}".format(
-        level,
-        datetime.strftime(datetime.now(), "%H:%m %Y-%m-%d")
+        suffix,
+        datetime.strftime(datetime.now(), "%H:%M %Y-%m-%d")
     ), color='k', fontsize=16)
     plt.tight_layout()
-    fig.legend(*zip(*labels), loc='lower center', bbox_to_anchor=(.5, -.05), ncols=5)
-    plt.savefig("trustyai_xai_bench/results/plots/xai_bench_l{}.pdf".format(level), bbox_inches='tight')
+    fig.legend(*zip(*labels), loc='lower center', bbox_to_anchor=(.5, -.05))
+    plt.savefig(
+        current_dir / "results" / "plots" / "xai_bench_{}.pdf".format(suffix),
+        bbox_inches='tight'
+    )
     plt.show()
 
 
@@ -193,6 +247,21 @@ def run_benchmark_config(config, save=False, plot=False):
     if plot:
         plot_test_results(results_df, config)
     if save:
-        results_df.to_pickle("trustyai_xai_bench/results/level_{}_results.pkl".format(config))
+        results_df.to_pickle(current_dir / "results" / "level_{}_results.pkl".format(config))
     return results_df
 
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Benchmark explainers with xai-bench.')
+    parser.add_argument("-c", "--config", type=str, required=True,
+                        help='The benchmark config to run. See the readme for the details of each')
+    parser.add_argument("-l", "--label", type=str,
+                        help="A shorthand name for this benchmark run to remember it")
+
+    args = parser.parse_args()
+    suffix = args.config + "_" + args.label if args.label else args.config
+
+    """Run a benchmark config, then plot and save the results to file"""
+    results_df = run_test_config(config_dict[args.config.lower()])
+    plot_test_results(results_df, suffix)
+    results_df.to_pickle(current_dir / "results" / "level_{}_results.pkl".format(suffix))

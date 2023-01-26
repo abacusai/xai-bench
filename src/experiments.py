@@ -6,8 +6,10 @@ import time
 from sklearn.metrics import accuracy_score, mean_squared_error
 import pickle as pkl
 
-from ..custom_explainers import GroundTruthShap
+from custom_explainers import GroundTruthShap
 
+import pathlib
+parent_dir = pathlib.Path(__file__).parent.parent
 
 class DatasetAsModel():
     def __init__(self, data_class) -> None:
@@ -24,7 +26,7 @@ class DatasetAsModel():
 
 class Experiment:
     def __init__(
-        self, dataset, models, explainers, metrics
+        self, dataset, models, explainers, metrics,
     ):
         self.dataset = dataset
         self.dataset.data[0].fillna(0, inplace=True)
@@ -74,9 +76,9 @@ class Experiment:
             dataset_identifier = "{}_".format(self.dataset.name) + "_".join(
                 "{}={}".format(k, v) for k, v in self.dataset.kwargs.items()) + ".pkl"
 
-            if dataset_identifier in os.listdir("trustyai_xai_bench/cached_data"):
+            if dataset_identifier in os.listdir(parent_dir / "cached_data"):
                 print("Loading cached ground truths...")
-                with open("trustyai_xai_bench/cached_data/"+dataset_identifier, "rb") as f:
+                with open(parent_dir / "cached_data" / dataset_identifier, "rb") as f:
                     ground_truth_weights = pkl.load(f)
             else:
                 print("Generating new ground truths...")
@@ -92,7 +94,7 @@ class Experiment:
                     ground_truth_weights.append(ground_truth_weight)
 
                 ground_truth_weights = np.squeeze(np.array(ground_truth_expectations)), np.squeeze(np.array(ground_truth_weights))
-                with open("trustyai_xai_bench/cached_data/" + dataset_identifier, "wb") as f:
+                with open(parent_dir / "cached_data" / dataset_identifier, "wb") as f:
                     pkl.dump(ground_truth_weights, f)
 
             return ground_truth_weights

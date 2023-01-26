@@ -27,7 +27,7 @@ class KernelShap:
 class KernelShapTrustyAI:
     def __init__(self, f, X, **kwargs):
         self.f = f
-        self.model = Model(f, dataframe_input=True, arrow=kwargs.get("arrow", True))
+        self.model = Model(f, dataframe_input=True)
         self.explainer = SHAPExplainer(
             background=X[:kwargs.get("background_size", 100)],
             **kwargs
@@ -40,7 +40,7 @@ class KernelShapTrustyAI:
             saliency = self.explainer.explain(
                     inputs=x.iloc[i:i + 1],
                     outputs=predictions[i:i + 1],
-                    model=self.model).get_saliencies()
+                    model=self.model).saliency_map()
 
             output_name = list(saliency.keys())[0]
             results.append(
