@@ -215,7 +215,6 @@ def plot_test_results(df, suffix):
         ax.xaxis.set_ticks(locs, minor=True)
         ax.yaxis.set_ticks(np.array(plt.yticks()[0]), minor=True)
         ax.xaxis.set(ticks=locs + .5, ticklabels=explainers)
-        ax.yaxis.set(ticks=np.array(plt.yticks()[0]), ticklabels=plt.yticks()[1])
         ax.grid(True, which='minor', axis='x')
         ax.grid(False, which='major', axis='x')
         plt.xticks(rotation=45, ha='right')

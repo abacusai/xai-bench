@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 class CustomDataset:
     def __init__(self, num_train_samples, num_val_samples, num_classes=None):
@@ -7,5 +8,6 @@ class CustomDataset:
         self.num_classes = num_classes or 1
 
     def get_dataset(self, num_samples=None):
+        np.random.seed(0)
         X, y = self.generate(n_sample=num_samples or self.num_train_samples)
         return pd.DataFrame(X), y

@@ -20,3 +20,6 @@ or
 1) Build the version of TrustyAI you'd like to benchmark
 2) Run `python3 main.py --config $CONFIG --label $LABEL` to run a benchmark config
 
+# Notes
+* The first run of any benchmark will take a little longer, as ground truths of each dataset need to be generated. After that, the cached ground truths are loaded from file.
+* Run results are stored in the `results/` directory; each run will produce a pickle'd Pandas dataframe of the raw benchmark data, as well as a plot within the `results/plots/` directory.
